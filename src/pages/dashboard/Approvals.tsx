@@ -25,13 +25,20 @@ export default function Approvals() {
       console.log('Pending users fetched:', data);
       
       if (profile?.system_role === 'CEO') {
-        // CEO only sees Admin requests
-        const filtered = data.filter(u => u.requested_role === 'ADMIN');
+        // CEO sees:
+        // 1. Admin requests (no reports_to check needed)
+        // 2. Employee requests where reports_to = CEO's ID
+        const filtered = data.filter(u => 
+          u.requested_role === 'ADMIN' || 
+          (u.requested_role === 'EMPLOYEE' && u.reports_to === user?.id)
+        );
         console.log('CEO filtered users:', filtered);
         setPendingUsers(filtered);
       } else if (profile?.system_role === 'ADMIN') {
-        // Admin only sees Employee requests
-        const filtered = data.filter(u => u.requested_role === 'EMPLOYEE');
+        // Admin sees only Employee requests where reports_to = Admin's ID
+        const filtered = data.filter(u => 
+          u.requested_role === 'EMPLOYEE' && u.reports_to === user?.id
+        );
         console.log('Admin filtered users:', filtered);
         setPendingUsers(filtered);
       } else {
@@ -141,9 +148,9 @@ export default function Approvals() {
             <CardTitle>User Requests</CardTitle>
             <CardDescription>
               {profile?.system_role === 'CEO' 
-                ? 'Approve or reject Admin registration requests'
+                ? 'Approve or reject Admin requests and Employee requests assigned to you'
                 : profile?.system_role === 'ADMIN'
-                ? 'Approve or reject Employee registration requests'
+                ? 'Approve or reject Employee requests assigned to you'
                 : 'No pending requests'}
             </CardDescription>
           </CardHeader>

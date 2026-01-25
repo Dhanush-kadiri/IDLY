@@ -100,6 +100,29 @@ export const profilesApi = {
     }
   },
 
+  async getAllManagers(): Promise<Profile[]> {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('status', 'ACTIVE')
+        .in('system_role', ['CEO', 'ADMIN'])
+        .order('system_role', { ascending: false }) // CEO first, then ADMINs
+        .order('name', { ascending: true });
+
+      if (error) {
+        console.error('Failed to fetch managers:', error);
+        throw error;
+      }
+      
+      console.log('getAllManagers result:', data);
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Error in getAllManagers:', error);
+      return [];
+    }
+  },
+
   async deleteUser(userId: string): Promise<boolean> {
     try {
       // First, delete from profiles (this will cascade to daily_logs)
@@ -148,12 +171,12 @@ export const dailyLogsApi = {
     return Array.isArray(data) ? data : [];
   },
 
-  async getAllLogs(filters?: { status?: LogStatus; startDate?: string; endDate?: string }, limit = 50, offset = 0): Promise<LogWithUser[]> {
+  async getAllLogs(filters?: { status?: LogStatus; startDate?: string; endDate?: string; managerId?: string }, limit = 50, offset = 0): Promise<LogWithUser[]> {
     let query = supabase
       .from('daily_logs')
       .select(`
         *,
-        user:profiles!daily_logs_user_id_fkey(name, email, title)
+        user:profiles!daily_logs_user_id_fkey(name, email, title, reports_to)
       `)
       .eq('deleted', false);
 
@@ -177,6 +200,12 @@ export const dailyLogsApi = {
       console.error('Failed to fetch all logs:', error);
       return [];
     }
+    
+    // Filter by manager if specified (for Admins who should only see their team's logs)
+    if (filters?.managerId && Array.isArray(data)) {
+      return data.filter(log => log.user?.reports_to === filters.managerId);
+    }
+    
     return Array.isArray(data) ? data : [];
   },
 

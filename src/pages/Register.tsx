@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import type { UserRole } from '@/types/types';
+import type { UserRole, Profile } from '@/types/types';
+import { profilesApi } from '@/db/api';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -19,11 +20,31 @@ export default function Register() {
     phone: '',
     requestedRole: 'EMPLOYEE' as UserRole,
     title: '',
+    reportsTo: '',
   });
   const [loading, setLoading] = useState(false);
+  const [managers, setManagers] = useState<Profile[]>([]);
+  const [loadingManagers, setLoadingManagers] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Load managers when component mounts
+  useEffect(() => {
+    loadManagers();
+  }, []);
+
+  const loadManagers = async () => {
+    setLoadingManagers(true);
+    try {
+      const allManagers = await profilesApi.getAllManagers();
+      setManagers(allManagers);
+    } catch (error) {
+      console.error('Failed to load managers:', error);
+    } finally {
+      setLoadingManagers(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +67,16 @@ export default function Register() {
       return;
     }
 
+    // Validate manager selection for Employees
+    if (formData.requestedRole === 'EMPLOYEE' && !formData.reportsTo) {
+      toast({
+        title: 'Error',
+        description: 'Please select a reporting manager',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await signUp({
@@ -55,6 +86,7 @@ export default function Register() {
       phone: formData.phone || undefined,
       requestedRole: formData.requestedRole,
       title: formData.title || undefined,
+      reportsTo: formData.requestedRole === 'EMPLOYEE' ? formData.reportsTo : undefined,
     });
 
     if (error) {
@@ -67,7 +99,7 @@ export default function Register() {
     } else {
       toast({
         title: 'Success',
-        description: 'Account created! Please wait for approval from an administrator.',
+        description: 'Account created! Please wait for approval from your reporting manager.',
       });
       navigate('/login');
     }
@@ -138,7 +170,7 @@ export default function Register() {
               <Label htmlFor="role">Requested Role *</Label>
               <Select
                 value={formData.requestedRole}
-                onValueChange={(value) => setFormData({ ...formData, requestedRole: value as UserRole })}
+                onValueChange={(value) => setFormData({ ...formData, requestedRole: value as UserRole, reportsTo: '' })}
                 disabled={loading}
               >
                 <SelectTrigger id="role">
@@ -150,6 +182,35 @@ export default function Register() {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Manager Selection - Only for Employees */}
+            {formData.requestedRole === 'EMPLOYEE' && (
+              <div className="space-y-2">
+                <Label htmlFor="manager">Reporting Manager *</Label>
+                <Select
+                  value={formData.reportsTo}
+                  onValueChange={(value) => setFormData({ ...formData, reportsTo: value })}
+                  disabled={loading || loadingManagers}
+                >
+                  <SelectTrigger id="manager">
+                    <SelectValue placeholder={loadingManagers ? "Loading managers..." : "Select your manager"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {managers.length === 0 && !loadingManagers && (
+                      <SelectItem value="none" disabled>No managers available</SelectItem>
+                    )}
+                    {managers.map((manager) => (
+                      <SelectItem key={manager.id} value={manager.id}>
+                        {manager.name} - {manager.title || manager.system_role}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Select the manager you will report to. Your approval request will be sent to them.
+                </p>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="password">Password *</Label>

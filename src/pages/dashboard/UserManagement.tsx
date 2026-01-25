@@ -45,9 +45,11 @@ export default function UserManagement() {
         console.log('CEO filtered users:', filtered);
         setUsers(filtered);
       } else if (profile?.system_role === 'ADMIN') {
-        // Admin sees only Employees
-        const filtered = data.filter(u => u.system_role === 'EMPLOYEE');
-        console.log('Admin filtered users:', filtered);
+        // Admin sees only Employees who report to them
+        const filtered = data.filter(u => 
+          u.system_role === 'EMPLOYEE' && u.reports_to === user?.id
+        );
+        console.log('Admin filtered users (reporting to them):', filtered);
         setUsers(filtered);
       } else {
         console.log('No role match, setting empty');

@@ -14,6 +14,7 @@ export interface Profile {
   title: string | null;
   approved_at: string | null;
   approved_by: string | null;
+  reports_to: string | null;
   created_at: string;
   updated_at: string;
 }

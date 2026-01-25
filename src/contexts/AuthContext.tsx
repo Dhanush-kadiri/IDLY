@@ -24,6 +24,7 @@ export interface SignUpData {
   phone?: string;
   requestedRole: UserRole;
   title?: string;
+  reportsTo?: string;
 }
 
 interface AuthContextType {
@@ -137,6 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             phone: data.phone || null,
             requested_role: data.requestedRole,
             title: data.title || null,
+            reports_to: data.reportsTo || null,
           })
           .eq('id', authData.user.id);
 

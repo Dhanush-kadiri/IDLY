@@ -7,11 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { StatusBadge } from '@/components/dashboard/StatusBadge';
 import { dailyLogsApi } from '@/db/api';
+import { useAuth } from '@/contexts/AuthContext';
 import type { LogWithUser, LogStatus } from '@/types/types';
 import { ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function TeamLogs() {
+  const { user, profile } = useAuth();
   const [logs, setLogs] = useState<LogWithUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<{
@@ -22,14 +24,18 @@ export default function TeamLogs() {
 
   const loadLogs = async () => {
     setLoading(true);
-    const data = await dailyLogsApi.getAllLogs(filters);
+    // Admin should only see logs from employees who report to them
+    const managerId = profile?.system_role === 'ADMIN' ? user?.id : undefined;
+    const data = await dailyLogsApi.getAllLogs({ ...filters, managerId });
     setLogs(data);
     setLoading(false);
   };
 
   useEffect(() => {
-    loadLogs();
-  }, [filters]);
+    if (profile) {
+      loadLogs();
+    }
+  }, [filters, profile]);
 
   return (
     <DashboardLayout>
