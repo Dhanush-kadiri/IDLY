@@ -37,10 +37,26 @@ export default function Register() {
   const loadManagers = async () => {
     setLoadingManagers(true);
     try {
+      console.log('Loading managers for registration...');
       const allManagers = await profilesApi.getAllManagers();
+      console.log('Managers loaded:', allManagers);
       setManagers(allManagers);
+      
+      if (allManagers.length === 0) {
+        console.warn('No managers found. This might be a configuration issue.');
+        toast({
+          title: 'Notice',
+          description: 'No managers available. Please contact the administrator.',
+          variant: 'default',
+        });
+      }
     } catch (error) {
       console.error('Failed to load managers:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load managers. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setLoadingManagers(false);
     }
@@ -196,14 +212,17 @@ export default function Register() {
                     <SelectValue placeholder={loadingManagers ? "Loading managers..." : "Select your manager"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {managers.length === 0 && !loadingManagers && (
-                      <SelectItem value="none" disabled>No managers available</SelectItem>
-                    )}
-                    {managers.map((manager) => (
-                      <SelectItem key={manager.id} value={manager.id}>
-                        {manager.name} - {manager.title || manager.system_role}
+                    {managers.length === 0 && !loadingManagers ? (
+                      <SelectItem value="none" disabled>
+                        No managers available - Please contact administrator
                       </SelectItem>
-                    ))}
+                    ) : (
+                      managers.map((manager) => (
+                        <SelectItem key={manager.id} value={manager.id}>
+                          {manager.name} {manager.title ? `- ${manager.title}` : `(${manager.system_role})`}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
