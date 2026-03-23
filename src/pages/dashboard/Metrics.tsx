@@ -54,7 +54,7 @@ export default function Metrics() {
             <CardContent>
               <div className="text-2xl font-bold">{metrics.collegeStats.total}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                {metrics.collegeStats.byOnboardStatus.COMPLETED || 0} completed onboarding
+                {Object.keys(metrics.collegeStats.byStatus).length} status categories
               </p>
             </CardContent>
           </Card>
@@ -67,7 +67,7 @@ export default function Metrics() {
             <CardContent>
               <div className="text-2xl font-bold">{metrics.companyStats.total}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                {metrics.companyStats.byOnboardStatus.COMPLETED || 0} completed onboarding
+                {Object.keys(metrics.companyStats.byStatus).length} status categories
               </p>
             </CardContent>
           </Card>
@@ -103,28 +103,19 @@ export default function Metrics() {
           <Card>
             <CardHeader>
               <CardTitle>College Statistics</CardTitle>
-              <CardDescription>Breakdown by onboarding status</CardDescription>
+              <CardDescription>Breakdown by status</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Not Started</span>
-                  <span className="text-sm text-muted-foreground">
-                    {metrics.collegeStats.byOnboardStatus.NOT_STARTED || 0}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">In Progress</span>
-                  <span className="text-sm text-muted-foreground">
-                    {metrics.collegeStats.byOnboardStatus.IN_PROGRESS || 0}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Completed</span>
-                  <span className="text-sm text-muted-foreground">
-                    {metrics.collegeStats.byOnboardStatus.COMPLETED || 0}
-                  </span>
-                </div>
+                {Object.entries(metrics.collegeStats.byStatus).map(([status, count]) => (
+                  <div key={status} className="flex items-center justify-between">
+                    <span className="text-sm font-medium">{status}</span>
+                    <span className="text-sm text-muted-foreground">{count}</span>
+                  </div>
+                ))}
+                {Object.keys(metrics.collegeStats.byStatus).length === 0 && (
+                  <p className="text-sm text-muted-foreground">No colleges yet</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -132,28 +123,19 @@ export default function Metrics() {
           <Card>
             <CardHeader>
               <CardTitle>Company Statistics</CardTitle>
-              <CardDescription>Breakdown by onboarding status</CardDescription>
+              <CardDescription>Breakdown by status</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Not Started</span>
-                  <span className="text-sm text-muted-foreground">
-                    {metrics.companyStats.byOnboardStatus.NOT_STARTED || 0}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">In Progress</span>
-                  <span className="text-sm text-muted-foreground">
-                    {metrics.companyStats.byOnboardStatus.IN_PROGRESS || 0}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Completed</span>
-                  <span className="text-sm text-muted-foreground">
-                    {metrics.companyStats.byOnboardStatus.COMPLETED || 0}
-                  </span>
-                </div>
+                {Object.entries(metrics.companyStats.byStatus).map(([status, count]) => (
+                  <div key={status} className="flex items-center justify-between">
+                    <span className="text-sm font-medium">{status}</span>
+                    <span className="text-sm text-muted-foreground">{count}</span>
+                  </div>
+                ))}
+                {Object.keys(metrics.companyStats.byStatus).length === 0 && (
+                  <p className="text-sm text-muted-foreground">No companies yet</p>
+                )}
               </div>
             </CardContent>
           </Card>

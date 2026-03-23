@@ -290,8 +290,16 @@ export const collegesApi = {
       .from('colleges')
       .insert({
         name: college.name,
+        address: college.address || null,
+        spoc_name: college.spoc_name || null,
+        spoc_contact: college.spoc_contact || null,
+        spoc_email: college.spoc_email || null,
+        intouract_spoc_name: college.intouract_spoc_name || null,
+        intouract_spoc_contact: college.intouract_spoc_contact || null,
+        intouract_spoc_email: college.intouract_spoc_email || null,
+        mou_duration: college.mou_duration || null,
         status: college.status || null,
-        onboard_status: college.onboard_status,
+        description: college.description || null,
       })
       .select()
       .maybeSingle();
@@ -303,7 +311,7 @@ export const collegesApi = {
     return data;
   },
 
-  async update(id: string, updates: Partial<Pick<College, 'name' | 'status' | 'onboard_status'>>): Promise<boolean> {
+  async update(id: string, updates: Partial<Omit<College, 'id' | 'created_at' | 'updated_at'>>): Promise<boolean> {
     const { error } = await supabase
       .from('colleges')
       .update(updates)
@@ -349,8 +357,16 @@ export const companiesApi = {
       .from('companies')
       .insert({
         name: company.name,
+        address: company.address || null,
+        spoc_name: company.spoc_name || null,
+        spoc_contact: company.spoc_contact || null,
+        spoc_email: company.spoc_email || null,
+        intouract_spoc_name: company.intouract_spoc_name || null,
+        intouract_spoc_contact: company.intouract_spoc_contact || null,
+        intouract_spoc_email: company.intouract_spoc_email || null,
+        mou_duration: company.mou_duration || null,
         status: company.status || null,
-        onboard_status: company.onboard_status,
+        description: company.description || null,
       })
       .select()
       .maybeSingle();
@@ -362,7 +378,7 @@ export const companiesApi = {
     return data;
   },
 
-  async update(id: string, updates: Partial<Pick<Company, 'name' | 'status' | 'onboard_status'>>): Promise<boolean> {
+  async update(id: string, updates: Partial<Omit<Company, 'id' | 'created_at' | 'updated_at'>>): Promise<boolean> {
     const { error } = await supabase
       .from('companies')
       .update(updates)
@@ -410,10 +426,6 @@ export const dashboardApi = {
         acc[status] = (acc[status] || 0) + 1;
         return acc;
       }, {} as Record<string, number>),
-      byOnboardStatus: colleges.reduce((acc, c) => {
-        acc[c.onboard_status] = (acc[c.onboard_status] || 0) + 1;
-        return acc;
-      }, {} as Record<OnboardStatus, number>),
     };
 
     const companyStats = {
@@ -423,10 +435,6 @@ export const dashboardApi = {
         acc[status] = (acc[status] || 0) + 1;
         return acc;
       }, {} as Record<string, number>),
-      byOnboardStatus: companies.reduce((acc, c) => {
-        acc[c.onboard_status] = (acc[c.onboard_status] || 0) + 1;
-        return acc;
-      }, {} as Record<OnboardStatus, number>),
     };
 
     const uniqueSubmitters = new Set(todayLogs.map(log => log.user_id));

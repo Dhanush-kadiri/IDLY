@@ -34,8 +34,16 @@ export interface DailyLog {
 export interface College {
   id: string;
   name: string;
+  address: string | null;
+  spoc_name: string | null;
+  spoc_contact: string | null;
+  spoc_email: string | null;
+  intouract_spoc_name: string | null;
+  intouract_spoc_contact: string | null;
+  intouract_spoc_email: string | null;
+  mou_duration: string | null;
   status: string | null;
-  onboard_status: OnboardStatus;
+  description: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -43,8 +51,16 @@ export interface College {
 export interface Company {
   id: string;
   name: string;
+  address: string | null;
+  spoc_name: string | null;
+  spoc_contact: string | null;
+  spoc_email: string | null;
+  intouract_spoc_name: string | null;
+  intouract_spoc_contact: string | null;
+  intouract_spoc_email: string | null;
+  mou_duration: string | null;
   status: string | null;
-  onboard_status: OnboardStatus;
+  description: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -53,12 +69,10 @@ export interface DashboardMetrics {
   collegeStats: {
     total: number;
     byStatus: Record<string, number>;
-    byOnboardStatus: Record<OnboardStatus, number>;
   };
   companyStats: {
     total: number;
     byStatus: Record<string, number>;
-    byOnboardStatus: Record<OnboardStatus, number>;
   };
   submissionRate: {
     submitted: number;
