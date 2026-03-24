@@ -1,3 +1,7 @@
+# Welcome to Your Miaoda Project
+Miaoda Application Link URL
+    URL:https://medo.dev/projects/app-8c7cxlsojcw1
+
 # InTouract's Daily Logger
 
 > A production-grade internal work management system with multi-role authentication, approval workflows, and comprehensive team collaboration features.
@@ -304,3 +308,5 @@ All features from the original specification have been implemented and tested:
 **Built with ❤️ for InTouract**
 
 For more information, see the complete documentation in the repository.
+#   I D L Y  
+ 
