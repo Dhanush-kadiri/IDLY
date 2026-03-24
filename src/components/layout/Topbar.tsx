@@ -34,7 +34,7 @@ export function Topbar() {
   return (
     <div className="flex h-16 items-center justify-between border-b bg-card px-6">
       <div className="flex items-center space-x-4">
-        <h1 className="text-xl font-semibold">Daily Logger</h1>
+        <h1 className="text-xl font-semibold">IDLY - InTouract's Daily Logger</h1>
       </div>
       <div className="flex items-center space-x-4">
         <DropdownMenu>

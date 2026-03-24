@@ -124,10 +124,17 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
+        <CardHeader className="space-y-4">
+          <div className="flex justify-center">
+            <img 
+              src="/assets/intouract-logo.jpg" 
+              alt="InTouract Logo" 
+              className="h-20 w-20 rounded-lg object-cover"
+            />
+          </div>
           <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
           <CardDescription className="text-center">
-            Register for InTouract's Daily Logger
+            Register for IDLY - InTouract's Daily Logger
           </CardDescription>
         </CardHeader>
         <CardContent>

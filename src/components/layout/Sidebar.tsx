@@ -72,11 +72,16 @@ export function Sidebar() {
   return (
     <div className="flex h-full w-64 flex-col border-r bg-card">
       <div className="flex h-16 items-center border-b px-6">
-        <Link to="/dashboard" className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">IT</span>
+        <Link to="/dashboard" className="flex items-center space-x-3">
+          <img 
+            src="/assets/intouract-logo.jpg" 
+            alt="InTouract Logo" 
+            className="h-10 w-10 rounded-lg object-cover"
+          />
+          <div className="flex flex-col">
+            <span className="font-bold text-base leading-tight">IDLY</span>
+            <span className="text-xs text-muted-foreground leading-tight">Daily Logger</span>
           </div>
-          <span className="font-bold text-lg">InTouract</span>
         </Link>
       </div>
       <nav className="flex-1 space-y-1 p-4">

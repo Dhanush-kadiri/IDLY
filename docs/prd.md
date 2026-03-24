@@ -1,156 +1,50 @@
-# 需求文档
+# Requirements Document
 
-## 1. 应用概述
+## 1. Application Overview
 
-### 1.1 应用名称
-InTouract's Daily Logger
+### 1.1 Application Name
+IDLY - InTouract's Daily Logger
 
-### 1.2 应用描述
-一个生产级内部工作更新与入职管理系统，支持员工日志提交、多级审批流程、角色权限管理、CEO管理面板等功能，可部署在Replit平台。
+### 1.2 Application Description
+A production-grade internal work update and onboarding management system supporting employee log submission, multi-level approval workflows, role-based access control, and a CEO management panel. Deployable on the Replit platform.
 
-## 2. 核心功能
+## 2. Core Features
 
-### 2.1 用户认证系统
-- 用户注册：邮箱、密码、姓名、电话、申请角色、职位
-- Admin注册：邮箱、密码、姓名、电话、职位，申请角色为Admin
-- Employee注册：邮箱、密码、姓名、电话、职位，申请角色为Employee，必须选择汇报对象（Reporting To），可选项包括CEO、COO、CTO等高级管理角色
-- 用户登录：邮箱密码验证，仅激活用户可登录
-- 登出功能：清除认证Cookie
-- 密码加密：使用bcrypt加密存储
-- 会话管理：JWT存储在HttpOnly Cookie中
+### 2.1 User Authentication System
+- User Registration: email, password, name, phone, requested role, job title
+- Admin Registration: email, password, name, phone, job title; requested role is Admin
+- Employee Registration: email, password, name, phone, job title; requested role is Employee; must select a Reporting To target (CEO, COO, CTO, etc.)
+- User Login: email and password verification; only ACTIVE users may log in
+- Logout: clears authentication cookie
+- Password Encryption: bcrypt
+- Session Management: JWT stored in HttpOnly Cookie
 
-### 2.2 角色与权限管理
-- 角色类型：CEO、COO、CTO、Admin、Employee
-- 用户状态：PENDING（待审批）、ACTIVE（已激活）、REJECTED（已拒绝）
-- 审批流程：
-  - Admin申请需CEO审批
-  - Employee申请需根据其选择的汇报对象（Reporting To）进行审批，审批请求仅发送至被选择的汇报对象
-  - 审批后设置systemRole并激活账户
-- 权限隔离：
-  - 每个高级管理角色（CEO、COO、CTO等）仅能查看和审批选择向其汇报的Employee
-  - 未被选择为汇报对象的管理角色无法看到该Employee的审批请求，也无权监控其日志
-- 初始CEO账户：
-  - 邮箱：intouract.22@gmail.com
-  - 密码：InTouract@1438
-  - 通过seed脚本创建，状态为ACTIVE
+### 2.2 Role & Permission Management
+- Role Types: CEO, COO, CTO, Admin, Employee
+- User Status: PENDING, ACTIVE, REJECTED
+- Approval Flow:
+  - Admin applications require CEO approval
+  - Employee applications are routed to the selected Reporting To target only
+  - Upon approval, systemRole is set and account is activated
+- Permission Isolation:
+  - Each senior management role (CEO, COO, CTO, etc.) can only view and approve Employees who selected them as their Reporting To
+  - Management roles not selected as Reporting To cannot see that Employee's approval request or logs
+- Initial CEO Account:
+  - Email: intouract.22@gmail.com
+  - Password: InTouract@1438
+  - Created via seed script with status ACTIVE
 
-### 2.3 日志管理系统
-- 员工日志提交：标题、描述、状态（进行中/已完成/已阻塞）、链接列表
-- 日志查看：用户查看自己的日志历史
-- 日志编辑/删除：仅限本人操作
-- 管理角色查看：每个管理角色（CEO、COO、CTO等）仅能查看向其汇报的Employee的日志，支持日期和状态筛选
-- 软删除机制：删除标记为deleted=true
+### 2.3 Log Management System
+- Employee Log Submission: title, description, status (In Progress / Completed / Blocked), links list
+- Log Viewing: users view their own log history
+- Log Edit/Delete: restricted to the log owner
+- Management Role Log Viewing: each management role can only view logs of Employees who report to them; supports filtering by date and status
+- Soft Delete: deletion marks deleted=true
 
-### 2.4 CEO管理面板
-- 审批管理：查看并处理待审批的Admin申请，以及选择向CEO汇报的Employee申请
-- 日志管理：提交和查看自己的工作日志，以及查看向CEO汇报的Employee日志
-- 学院管理（Colleges）：CRUD操作，表单字段包含：
-  - Name（名称）
-  - Address（地址）
-  - SPOC Name（联系人姓名）
-  - SPOC Contact（联系人电话）
-  - SPOC Mail ID（联系人邮箱）
-  - SPOC from InTouract - Name（InTouract侧联系人姓名）
-  - SPOC from InTouract - Number（InTouract侧联系人电话）
-  - SPOC from InTouract - Mail（InTouract侧联系人邮箱）
-  - Duration of the MoU（合作备忘录有效期）
-  - Status（状态）
-  - Description（描述）
-- 公司管理（Companies）：CRUD操作，表单字段包含：
-  - Name（名称）
-  - Address（地址）
-  - SPOC Name（联系人姓名）
-  - SPOC Contact（联系人电话）
-  - SPOC Mail ID（联系人邮箱）
-  - SPOC from InTouract - Name（InTouract侧联系人姓名）
-  - SPOC from InTouract - Number（InTouract侧联系人电话）
-  - SPOC from InTouract - Mail（InTouract侧联系人邮箱）
-  - Duration of the MoU（合作备忘录有效期）
-  - Status（状态）
-  - Description（描述）
-- 综合面板：
-  - 学院/公司数量统计（按状态分类）
-  - 今日提交率（已提交用户/总激活用户，仅统计向CEO汇报的用户）
-  - 未提交用户列表（最近N天未提交日志的用户，仅显示向CEO汇报的用户）
-
-### 2.5 COO/CTO等高级管理角色面板
-- 审批管理：查看并处理选择向其汇报的Employee申请
-- 团队日志：查看向其汇报的Employee日志，支持日期和状态筛选
-- 个人日志：提交和管理自己的工作日志
-- 综合面板：
-  - 今日提交率（已提交用户/总激活用户，仅统计向该角色汇报的用户）
-  - 未提交用户列表（最近N天未提交日志的用户，仅显示向该角色汇报的用户）
-
-### 2.6 Admin管理面板
-- 审批管理：查看并处理待审批的Employee申请（仅当Employee选择向Admin汇报时）
-- 团队日志：查看向其汇报的Employee日志，支持日期和状态筛选
-- 个人日志：提交和管理自己的工作日志
-
-### 2.7 Employee面板
-- 个人资料：查看个人信息
-- 日志管理：提交、查看、编辑、删除自己的工作日志
-
-## 3. 数据库设计
-
-### 3.1 数据模型
-- User：用户表（id、email、password、name、phone、requestedRole、systemRole、status、title、reportingTo、approvedAt等）
-  - reportingTo字段：存储Employee选择的汇报对象角色（如CEO、COO、CTO等），仅Employee角色需填写
-- DailyLog：日志表（id、userId、title、description、status、links数组、deleted、createdAt等）
-- College：学院表（id、name、address、spocName、spocContact、spocMailId、spocInTouractName、spocInTouractNumber、spocInTouractMail、mouDuration、status、description、onboardStatus、createdAt等）
-- Company：公司表（id、name、address、spocName、spocContact、spocMailId、spocInTouractName、spocInTouractNumber、spocInTouractMail、mouDuration、status、description、onboardStatus、createdAt等）
-
-### 3.2 枚举类型
-- Role：CEO、COO、CTO、ADMIN、EMPLOYEE
-- Status：PENDING、ACTIVE、REJECTED
-- LogStatus：IN_PROGRESS、COMPLETED、BLOCKED
-- OnboardStatus：NOT_STARTED、IN_PROGRESS、COMPLETED
-- ReportingTo：CEO、COO、CTO（Employee注册时可选）
-
-## 4. API接口
-
-### 4.1 认证接口
-- POST /api/auth/register：用户注册（Employee注册时需包含reportingTo字段）
-- POST /api/auth/login：用户登录
-- POST /api/auth/logout：用户登出
-- GET /api/users/me：获取当前用户信息
-
-### 4.2 用户管理接口
-- GET /api/users/pending：获取待审批用户列表（根据当前用户角色和reportingTo字段筛选）
-- POST /api/users/approve：审批用户（仅审批向当前用户汇报的Employee或Admin申请）
-- POST /api/users/reject：拒绝用户申请
-
-### 4.3 日志接口
-- GET /api/daily-log：获取日志列表（根据当前用户角色和reportingTo关系筛选）
-- POST /api/daily-log：创建日志
-- PUT /api/daily-log/[id]：更新日志
-- DELETE /api/daily-log/[id]：删除日志（软删除）
-
-### 4.4 学院管理接口（CEO专用）
-- GET /api/colleges：获取学院列表
-- POST /api/colleges：创建学院（请求体包含name、address、spocName、spocContact、spocMailId、spocInTouractName、spocInTouractNumber、spocInTouractMail、mouDuration、status、description）
-- PUT /api/colleges/[id]：更新学院
-- DELETE /api/colleges/[id]：删除学院
-
-### 4.5 公司管理接口（CEO专用）
-- GET /api/companies：获取公司列表
-- POST /api/companies：创建公司（请求体包含name、address、spocName、spocContact、spocMailId、spocInTouractName、spocInTouractNumber、spocInTouractMail、mouDuration、status、description）
-- PUT /api/companies/[id]：更新公司
-- DELETE /api/companies/[id]：删除公司
-
-### 4.6 仪表盘接口
-- GET /api/dashboard/metrics：获取仪表盘数据（根据当前用户角色和reportingTo关系筛选统计数据）
-
-## 5. 前端页面
-
-### 5.1 公共页面
-- /（首页）：未登录显示登录/注册入口，已登录跳转至对应角色仪表盘
-- /register：注册页面（Employee注册时需选择汇报对象）
-- /login：登录页面
-
-### 5.2 CEO仪表盘（/dashboard/ceo）
-- 审批面板：待审批Admin和选择向CEO汇报的Employee列表
-- 日志面板：CEO个人日志提交表单和历史记录，以及向CEO汇报的Employee日志
-- 学院管理面板：学院列表、CRUD操作、状态筛选；新增/编辑表单包含以下字段：
+### 2.4 CEO Management Panel
+- Approval Management: view and process pending Admin applications and Employee applications where Reporting To = CEO
+- Log Management: submit and view own work logs; view logs of Employees reporting to CEO
+- College Management (CRUD):
   - Name
   - Address
   - SPOC Name
@@ -162,7 +56,7 @@ InTouract's Daily Logger
   - Duration of the MoU
   - Status
   - Description
-- 公司管理面板：公司列表、CRUD操作、状态筛选；新增/编辑表单包含以下字段：
+- Company Management (CRUD):
   - Name
   - Address
   - SPOC Name
@@ -174,110 +68,205 @@ InTouract's Daily Logger
   - Duration of the MoU
   - Status
   - Description
-- 综合概览面板：统计数据和未提交用户列表（仅显示向CEO汇报的用户）
+- Overview Dashboard:
+  - College/Company count statistics (by status)
+  - Today's submission rate (submitted users / total active users reporting to CEO)
+  - Non-submitting users list (users who have not submitted logs in the last N days, reporting to CEO only)
 
-### 5.3 COO/CTO等高级管理角色仪表盘（/dashboard/coo 或 /dashboard/cto）
-- 审批面板：选择向该角色汇报的Employee列表
-- 团队日志面板：向该角色汇报的Employee日志，支持日期和状态筛选
-- 个人日志面板：该角色自己的日志提交和历史
-- 综合概览面板：统计数据和未提交用户列表（仅显示向该角色汇报的用户）
+### 2.5 COO/CTO and Other Senior Management Panels
+- Approval Management: view and process Employee applications where Reporting To = this role
+- Team Logs: view logs of Employees reporting to this role; supports filtering by date and status
+- Personal Logs: submit and manage own work logs
+- Overview Dashboard:
+  - Today's submission rate (submitted users / total active users reporting to this role)
+  - Non-submitting users list (users who have not submitted logs in the last N days, reporting to this role only)
 
-### 5.4 Admin仪表盘（/dashboard/admin）
-- 审批面板：选择向Admin汇报的Employee列表
-- 团队日志面板：向Admin汇报的Employee日志，支持日期和状态筛选
-- 个人日志面板：Admin自己的日志提交和历史
+### 2.6 Admin Management Panel
+- Approval Management: view and process Employee applications where Reporting To = Admin
+- Team Logs: view logs of Employees reporting to this Admin; supports filtering by date and status
+- Personal Logs: submit and manage own work logs
 
-### 5.5 Employee仪表盘（/dashboard）
-- 个人资料：显示用户信息
-- 日志管理：日志提交表单和历史记录表格
+### 2.7 Employee Panel
+- Profile: view personal information
+- Log Management: submit, view, edit, and delete own work logs
 
-### 5.6 共享组件
-- Sidebar：角色感知的侧边栏导航
-- Topbar：顶部栏，包含用户下拉菜单和登出按钮
-- LogForm：日志提交/编辑模态框
-- Table：支持服务端分页的表格组件
-- CollegeForm / CompanyForm：学院/公司新增与编辑模态框，包含上述全部字段
+## 3. Database Design
 
-## 6. 安全与权限
+### 3.1 Data Models
+- User: id, email, password, name, phone, requestedRole, systemRole, status, title, reportingTo, approvedAt, etc.
+  - reportingTo: stores the role the Employee selected as their reporting target (CEO, COO, CTO, etc.); required for Employee role only
+- DailyLog: id, userId, title, description, status, links (array), deleted, createdAt, etc.
+- College: id, name, address, spocName, spocContact, spocMailId, spocInTouractName, spocInTouractNumber, spocInTouractMail, mouDuration, status, description, onboardStatus, createdAt, etc.
+- Company: id, name, address, spocName, spocContact, spocMailId, spocInTouractName, spocInTouractNumber, spocInTouractMail, mouDuration, status, description, onboardStatus, createdAt, etc.
 
-### 6.1 服务端验证
-- 所有API路由必须验证JWT和用户角色
-- 用户只能操作自己的日志
-- CEO专属功能（学院/公司管理）需验证CEO角色
-- 审批和日志查看权限需验证reportingTo关系，确保管理角色仅能访问向其汇报的Employee数据
+### 3.2 Enum Types
+- Role: CEO, COO, CTO, ADMIN, EMPLOYEE
+- Status: PENDING, ACTIVE, REJECTED
+- LogStatus: IN_PROGRESS, COMPLETED, BLOCKED
+- OnboardStatus: NOT_STARTED, IN_PROGRESS, COMPLETED
+- ReportingTo: CEO, COO, CTO (selectable during Employee registration)
 
-### 6.2 前端安全
-- 使用fetch时包含credentials以传递Cookie
-- 使用Zod进行表单验证
-- 根据权限禁用UI操作按钮
-- 显示友好的空状态提示
+## 4. API Endpoints
 
-### 6.3 密码安全
-- 使用bcrypt加密密码，SALT_ROUNDS=10
-- 首次登录后建议CEO修改密码
-- 实现密码修改功能
+### 4.1 Authentication
+- POST /api/auth/register — user registration (Employee must include reportingTo)
+- POST /api/auth/login — user login
+- POST /api/auth/logout — user logout
+- GET /api/users/me — get current user info
 
-## 7. 部署配置
+### 4.2 User Management
+- GET /api/users/pending — get pending users (filtered by current user role and reportingTo)
+- POST /api/users/approve — approve user (only Employees/Admins reporting to current user)
+- POST /api/users/reject — reject user application
 
-### 7.1 环境变量
-- DATABASE_URL：Supabase PostgreSQL连接字符串
-- JWT_SECRET：JWT签名密钥
-- CEO_EMAIL：intouract.22@gmail.com
-- CEO_PASSWORD：InTouract@1438
-- SALT_ROUNDS：10
-- NEXT_PUBLIC_APP_NAME：InTouract
-- NODE_ENV：production
+### 4.3 Logs
+- GET /api/daily-log — get log list (filtered by role and reportingTo relationship)
+- POST /api/daily-log — create log
+- PUT /api/daily-log/[id] — update log
+- DELETE /api/daily-log/[id] — soft delete log
 
-### 7.2 数据库迁移与种子数据
-- 使用Prisma Migrate进行数据库迁移
-- 种子脚本仅创建CEO账户（从环境变量读取邮箱和密码）
-- 部署后执行命令：npx prisma migrate deploy && ts-node prisma/seed.ts
+### 4.4 College Management (CEO only)
+- GET /api/colleges — get college list
+- POST /api/colleges — create college (name, address, spocName, spocContact, spocMailId, spocInTouractName, spocInTouractNumber, spocInTouractMail, mouDuration, status, description)
+- PUT /api/colleges/[id] — update college
+- DELETE /api/colleges/[id] — delete college
 
-### 7.3 Replit部署步骤
-1. 创建新Repl（导入代码仓库或从生成代码创建）
-2. 在Replit Secrets中添加所有环境变量
-3. 运行 npm ci 或 pnpm install
-4. 运行 npx prisma migrate deploy
-5. 运行 ts-node prisma/seed.ts
-6. 启动Repl或点击Deploy，应用将在Repl公共URL上可访问
+### 4.5 Company Management (CEO only)
+- GET /api/companies — get company list
+- POST /api/companies — create company (name, address, spocName, spocContact, spocMailId, spocInTouractName, spocInTouractNumber, spocInTouractMail, mouDuration, status, description)
+- PUT /api/companies/[id] — update company
+- DELETE /api/companies/[id] — delete company
 
-### 7.4 package.json脚本
-- dev：next dev -p 3000
-- build：next build
-- start：next start -p 3000
-- prisma:migrate：prisma migrate deploy
-- prisma:seed：ts-node prisma/seed.ts
+### 4.6 Dashboard
+- GET /api/dashboard/metrics — get dashboard metrics (filtered by role and reportingTo relationship)
 
-## 8. 数据约束
+## 5. Frontend Pages
 
-### 8.1 种子数据
-- 仅包含一个CEO账户（邮箱：intouract.22@gmail.com，密码：InTouract@1438）
-- 不包含任何模拟用户或示例日志
-- CEO账户状态为ACTIVE，systemRole为CEO
+### 5.1 Public Pages
+- / (Home): shows login/register entry for unauthenticated users; redirects authenticated users to their role dashboard
+- /register: registration page (Employee must select Reporting To)
+- /login: login page
 
-### 8.2 数据持久化
-- 所有数据必须通过数据库持久化
-- 禁止使用内存中的模拟数据
+### 5.2 CEO Dashboard (/dashboard/ceo)
+- Approval Panel: pending Admin and CEO-reporting Employee list
+- Log Panel: CEO personal log submission form and history; CEO-reporting Employee logs
+- College Management Panel: college list, CRUD operations, status filter; add/edit form includes all fields listed in Section 2.4
+- Company Management Panel: company list, CRUD operations, status filter; add/edit form includes all fields listed in Section 2.4
+- Overview Panel: statistics and non-submitting user list (CEO-reporting users only)
 
-### 8.3 功能限制
-- 不包含任务分配功能
-- Admin晋升必须由CEO完成
-- Employee激活必须由其选择的汇报对象完成
-- 管理角色仅能访问向其汇报的Employee数据
+### 5.3 COO/CTO Senior Management Dashboards (/dashboard/coo or /dashboard/cto)
+- Approval Panel: Employee list reporting to this role
+- Team Log Panel: logs of Employees reporting to this role; date and status filters
+- Personal Log Panel: own log submission and history
+- Overview Panel: statistics and non-submitting user list (this role's reporting users only)
 
-## 9. 测试要求
+### 5.4 Admin Dashboard (/dashboard/admin)
+- Approval Panel: Employee list reporting to Admin
+- Team Log Panel: logs of Employees reporting to Admin; date and status filters
+- Personal Log Panel: Admin's own log submission and history
 
-### 9.1 单元测试
-- 认证流程测试：注册 → CEO审批 → Admin审批Employee
-- 汇报关系测试：Employee选择COO汇报 → 仅COO可见审批请求和日志
+### 5.5 Employee Dashboard (/dashboard)
+- Profile: display user information
+- Log Management: log submission form and history table
 
-### 9.2 集成测试
-- Employee创建日志 → 其汇报对象查看日志
-- 权限隔离测试：CEO无法查看向COO汇报的Employee日志
+### 5.6 Shared Components
+- Sidebar: role-aware sidebar navigation; displays the IDLY logo (intouract logo.jpg, URL: https://miaoda-conversation-file.s3cdn.medo.dev/user-8c7cvevbxo8w/conv-8c7cxlsojcw0/20260324/file-ahel4nrto3cw.jpg) at the top
+- Topbar: top bar with user dropdown and logout button; displays the IDLY logo on mobile or when sidebar is collapsed
+- LogForm: log submission/edit modal
+- Table: table component with server-side pagination
+- CollegeForm / CompanyForm: college/company add and edit modals with all required fields
 
-## 10. 设计风格
+## 6. Logo Usage
+- Logo file name: intouract logo.jpg
+- Logo URL: https://miaoda-conversation-file.s3cdn.medo.dev/user-8c7cvevbxo8w/conv-8c7cxlsojcw0/20260324/file-ahel4nrto3cw.jpg
+- Usage: display the IDLY logo prominently in the Sidebar header area and in the Topbar; also display on the /login and /register pages above the form
 
-- 配色方案：采用专业的企业级配色，主色调为深蓝色（#1E40AF），辅助色为浅灰色（#F3F4F6）和白色，强调色为绿色（#10B981）用于成功状态
-- 布局方式：采用侧边栏+主内容区的经典后台布局，侧边栏固定，主内容区可滚动
-- 视觉细节：使用中等圆角（8px），卡片式设计带有轻微阴影，按钮采用实心填充样式，表格使用斑马纹提升可读性
-- 交互反馈：按钮hover状态有颜色加深效果，表单验证错误显示红色提示，操作成功显示绿色Toast提示
+## 7. Security & Permissions
+
+### 7.1 Server-Side Validation
+- All API routes must validate JWT and user role
+- Users can only operate on their own logs
+- CEO-exclusive features (college/company management) require CEO role verification
+- Approval and log viewing permissions require reportingTo relationship validation
+
+### 7.2 Frontend Security
+- Include credentials in fetch calls to pass cookies
+- Use Zod for form validation
+- Disable UI action buttons based on permissions
+- Display friendly empty-state messages
+
+### 7.3 Password Security
+- bcrypt password hashing with SALT_ROUNDS=10
+- CEO is recommended to change password after first login
+- Password change functionality implemented
+
+## 8. Deployment Configuration
+
+### 8.1 Environment Variables
+- DATABASE_URL: Supabase PostgreSQL connection string
+- JWT_SECRET: JWT signing key
+- CEO_EMAIL: intouract.22@gmail.com
+- CEO_PASSWORD: InTouract@1438
+- SALT_ROUNDS: 10
+- NEXT_PUBLIC_APP_NAME: InTouract
+- NODE_ENV: production
+
+### 8.2 Database Migration & Seed Data
+- Use Prisma Migrate for database migrations
+- Seed script creates only the CEO account (reads email and password from environment variables)
+- Post-deployment commands: npx prisma migrate deploy && ts-node prisma/seed.ts
+
+### 8.3 Replit Deployment Steps
+1. Create a new Repl (import repository or create from generated code)
+2. Add all environment variables in Replit Secrets
+3. Run npm ci or pnpm install
+4. Run npx prisma migrate deploy
+5. Run ts-node prisma/seed.ts
+6. Start the Repl or click Deploy; the app will be accessible at the Repl's public URL
+
+### 8.4 package.json Scripts
+- dev: next dev -p 3000
+- build: next build
+- start: next start -p 3000
+- prisma:migrate: prisma migrate deploy
+- prisma:seed: ts-node prisma/seed.ts
+
+## 9. Data Constraints
+
+### 9.1 Seed Data
+- Contains only one CEO account (email: intouract.22@gmail.com, password: InTouract@1438)
+- No mock users or sample logs
+- CEO account status is ACTIVE, systemRole is CEO
+
+### 9.2 Data Persistence
+- All data must be persisted via the database
+- In-memory mock data is prohibited
+
+### 9.3 Feature Restrictions
+- No task assignment functionality
+- Admin promotion must be performed by CEO
+- Employee activation must be performed by their selected Reporting To target
+- Management roles can only access data of Employees who report to them
+
+## 10. Testing Requirements
+
+### 10.1 Unit Tests
+- Authentication flow: registration → CEO approves Admin → Admin approves Employee
+- Reporting relationship: Employee selects COO → only COO sees approval request and logs
+
+### 10.2 Integration Tests
+- Employee creates log → their Reporting To target views the log
+- Permission isolation: CEO cannot view logs of Employees reporting to COO
+
+## 11. Design Style
+
+- Color Scheme: professional enterprise palette; primary color deep blue (#1E40AF), secondary light gray (#F3F4F6) and white, accent green (#10B981) for success states
+- Layout: classic admin layout with fixed sidebar and scrollable main content area
+- Visual Details: medium border radius (8px), card-style design with subtle shadows, solid fill buttons, zebra-striped tables for readability
+- Interaction Feedback: button hover darkens color, form validation errors shown in red, successful actions trigger green Toast notifications
+- Logo: IDLY logo (intouract logo.jpg) displayed in the sidebar header, topbar, and authentication pages
+
+## 12. Out of Scope
+- Task assignment functionality
+- Any mock or demo data beyond the initial CEO seed account
+- Extended role types beyond CEO, COO, CTO, Admin, Employee
